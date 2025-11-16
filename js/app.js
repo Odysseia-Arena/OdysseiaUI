@@ -9,6 +9,8 @@ const DEFAULT_PLUGINS = [
         reqScript: `
 			// Context: { baseUrl, apiKey, model, messages, fileData, useFullUrl }
 			
+            const allMessages = Array.isArray(context.messages) ? context.messages : [];
+
 			let url;
 			if (context.useFullUrl) {
 				// 🆕 完整URL模式：直接使用用户输入的URL
@@ -18,9 +20,50 @@ const DEFAULT_PLUGINS = [
 				url = (context.baseUrl || '').replace(/\\/+$/, '') + '/v1/chat/completions';
 			}
 			
+            let messagesToSend = allMessages;
+
+            // 如果当前轮有上传图片 (context.fileData)，则将「本轮 user 消息」改为多模态 content，带上 image_url
+            if (context.fileData) {
+                const cloned = allMessages.map(m => (m && typeof m === 'object') ? Object.assign({}, m) : m);
+
+                let lastUserIndex = -1;
+                for (let i = cloned.length - 1; i >= 0; i--) {
+                    if (cloned[i] && cloned[i].role === 'user') {
+                        lastUserIndex = i;
+                        break;
+                    }
+                }
+
+                if (lastUserIndex !== -1) {
+                    const orig = cloned[lastUserIndex] || {};
+                    const text = (typeof orig.content === 'string') ? orig.content : '';
+                    const userContent = [];
+
+                    if (text && text.trim()) {
+                        userContent.push({
+                            type: 'text',
+                            text: text
+                        });
+                    }
+
+                    userContent.push({
+                        type: 'image_url',
+                        image_url: { url: context.fileData }
+                    });
+
+                    const newMsg = Object.assign({}, orig, {
+                        role: 'user',
+                        content: userContent
+                    });
+
+                    cloned[lastUserIndex] = newMsg;
+                    messagesToSend = cloned;
+                }
+            }
+
 			const body = {
 				model: context.model,
-				messages: context.messages,
+				messages: messagesToSend,
 				stream: true
 			};
 	 
@@ -206,6 +249,14 @@ const DEFAULT_PLUGINS = [
 						type: 'image_url',
 						image_url: { url: u }
 					});
+				});
+			}
+
+			// 如果当前轮包含上传图片 (context.fileData)，也作为 image_url 传入
+			if (context.fileData) {
+				userContent.push({
+					type: 'image_url',
+					image_url: { url: context.fileData }
 				});
 			}
 

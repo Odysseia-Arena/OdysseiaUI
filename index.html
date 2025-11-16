@@ -206,16 +206,16 @@
             </button>
         </div>
 
-        <div class="flex flex-1 overflow-hidden">
+        <div class="flex flex-1 overflow-hidden settings-layout">
             <!-- Settings Sidebar -->
-            <div class="w-48 bg-surface-50 border-r border-surface-300 p-2 space-y-1">
+            <div class="w-48 bg-surface-50 border-r border-surface-300 p-2 space-y-1 settings-sidebar">
                 <button onclick="switchSettingsTab('channels')" class="settings-tab-btn w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-surface-200 active-tab" data-tab="channels">API 渠道</button>
                 <button onclick="switchSettingsTab('plugins')" class="settings-tab-btn w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-surface-200" data-tab="plugins">插件管理</button>
                 <button onclick="switchSettingsTab('about')" class="settings-tab-btn w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-surface-200" data-tab="about">关于</button>
             </div>
 
             <!-- Settings Content -->
-            <div class="flex-1 p-6 overflow-y-auto bg-white">
+            <div class="flex-1 p-6 overflow-y-auto bg-white settings-main">
 
                 <!-- TAB: CHANNELS -->
                 <div id="tab-channels" class="settings-panel block">

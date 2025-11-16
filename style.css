@@ -87,6 +87,34 @@ h2 { font-size: 18px; font-weight: 500; color: #27272a; }
     }
 }
 
+/* Settings Modal: mobile layout tweaks */
+@media (max-width: 640px) {
+    /* 设置弹窗左右两栏改为上下布局，避免左侧栏“挤没”右侧内容 */
+    .settings-layout {
+        flex-direction: column;
+    }
+
+    .settings-sidebar {
+        width: 100% !important;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        gap: 4px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+
+    .settings-sidebar .settings-tab-btn {
+        width: auto;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .settings-main {
+        padding: 12px;
+    }
+}
+
 /* Components */
 .btn {
     display: inline-flex;
