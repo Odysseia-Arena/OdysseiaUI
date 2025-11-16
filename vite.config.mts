@@ -4,12 +4,11 @@ export default defineConfig({
   root: '.',
   server: {
     port: 5173,
-    // 显式开启 Vite 开发服务器的 CORS 支持，默认允许任意来源
-    cors: true
+    host: '0.0.0.0' // 允许局域网访问
   },
   preview: {
-    // 预览环境同样开启 CORS
-    cors: true
+    port: 4173,
+    host: '0.0.0.0' // 允许局域网访问
   },
   build: {
     outDir: 'dist'

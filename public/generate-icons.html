@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>生成 PWA 图标</title>
+</head>
+<body>
+  <h2>生成 PWA 图标</h2>
+  <p>点击下面的按钮生成图标，然后右键保存图片</p>
+  
+  <canvas id="icon192" width="192" height="192" style="border: 1px solid #ccc; margin: 10px;"></canvas>
+  <br>
+  <button onclick="downloadIcon(192)">下载 192x192 图标</button>
+  
+  <br><br>
+  
+  <canvas id="icon512" width="512" height="512" style="border: 1px solid #ccc; margin: 10px;"></canvas>
+  <br>
+  <button onclick="downloadIcon(512)">下载 512x512 图标</button>
+  
+  <script>
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      
+      // 绘制背景
+      ctx.fillStyle = '#27272a';
+      ctx.roundRect(0, 0, size, size, size * 0.2);
+      ctx.fill();
+      
+      // 绘制文字 "O"
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${size * 0.4}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('O', size / 2, size / 2);
+    }
+    
+    function downloadIcon(size) {
+      const canvas = document.getElementById(`icon${size}`);
+      const link = document.createElement('a');
+      link.download = `icon-${size}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+    
+    // 初始化图标
+    drawIcon(document.getElementById('icon192'), 192);
+    drawIcon(document.getElementById('icon512'), 512);
+  </script>
+</body>
+</html>

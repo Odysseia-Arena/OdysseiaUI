@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OdysseiaUI</title>
 
     <!-- Tailwind CSS -->
@@ -96,7 +96,7 @@
         </div>
 
         <!-- Footer -->
-        <div class="p-3 border-t border-surface-300">
+        <div class="p-3 border-t border-surface-300 sidebar-footer">
             <button onclick="openSettings()" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-800 hover:bg-surface-200 rounded-sm transition-colors">
                 <span class="material-symbols-outlined text-[18px]">settings</span>
                 <span>设置 & 插件</span>
@@ -126,9 +126,11 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-1">
-                <button class="lg:hidden btn-icon" onclick="toggleSidebar('right')">
-                    <span class="material-symbols-outlined">article</span>
+            <div class="flex items-center gap-2">
+                <!-- Desktop Log Button -->
+                <button id="header-log-button" class="hidden lg:inline-flex items-center gap-1 px-2 py-1 text-xs border border-surface-300 rounded-sm hover:bg-surface-100 text-surface-800" data-log-toggle="true" onclick="toggleSidebar('right')">
+                    <span class="material-symbols-outlined text-[18px]">article</span>
+                    <span>日志</span>
                 </button>
             </div>
         </header>
@@ -146,7 +148,7 @@
         </div>
 
         <!-- Input Area -->
-        <div class="p-4 border-t border-surface-300 bg-white">
+        <div class="p-4 border-t border-surface-300 bg-white chat-input-area">
             <div class="max-w-3xl mx-auto relative bg-surface-100 border border-surface-300 rounded-md focus-within:border-surface-800 focus-within:ring-1 focus-within:ring-surface-800 transition-all shadow-sm">
 
                 <!-- File Preview -->
@@ -180,7 +182,7 @@
         <div class="h-14 flex items-center justify-between px-4 border-b border-surface-300">
             <h2 class="font-medium text-sm">请求日志</h2>
             <div class="flex gap-1">
-                <button class="btn-icon text-[16px]" onclick="clearLogs()" title="清空日志">block</button>
+                <button class="btn-icon text-[16px]" onclick="clearLogs()" title="清空日志">clean</button>
                 <button class="lg:hidden btn-icon" onclick="toggleSidebar('right')">close</button>
             </div>
         </div>

@@ -1115,6 +1115,21 @@ async function init() {
 
     // 初始化发送/停止按钮状态
     updateSendButtonState();
+
+    // 点击主内容区域时，如果日志栏是打开状态则自动隐藏
+    const appLayout = document.getElementById('app-layout');
+    const mainArea = document.querySelector('main');
+    if (appLayout && mainArea) {
+        mainArea.addEventListener('click', (e) => {
+            // 如果点击的是任何“日志开关”按钮，则不处理
+            if (e.target && typeof e.target.closest === 'function' && e.target.closest('[data-log-toggle="true"]')) {
+                return;
+            }
+            if (appLayout.classList.contains('show-right')) {
+                appLayout.classList.remove('show-right');
+            }
+        });
+    }
 }
 
 // Session Management

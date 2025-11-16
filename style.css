@@ -32,10 +32,15 @@ h2 { font-size: 18px; font-weight: 500; color: #27272a; }
 /* Layout Utilities */
 .app-container {
     display: grid;
-    grid-template-columns: 260px 1fr 300px;
+    grid-template-columns: 260px 1fr 0px; /* 默认隐藏右侧日志栏 */
     height: 100vh;
+    height: 100dvh; /* 在支持的浏览器上使用动态视口高度，避免被手机底栏遮挡 */
     width: 100vw;
     transition: all 0.3s ease;
+}
+
+.app-container.show-right {
+    grid-template-columns: 260px 1fr 300px; /* 显示右侧日志栏 */
 }
 
 /* Mobile Responsive Adjustments */
@@ -47,7 +52,12 @@ h2 { font-size: 18px; font-weight: 500; color: #27272a; }
         grid-template-columns: 260px 1fr 0px;
     }
     .app-container.show-right {
-        grid-template-columns: 0px 1fr 300px;
+        grid-template-columns: 0px 1fr 0px; /* 手机端不再为右侧日志栏预留宽度 */
+    }
+
+    /* 手机端完全隐藏右侧日志栏 */
+    #right-sidebar {
+        display: none;
     }
     /* Overlay for mobile when sidebars are open */
     .sidebar-overlay {
@@ -57,9 +67,23 @@ h2 { font-size: 18px; font-weight: 500; color: #27272a; }
         z-index: 40;
         display: none;
     }
-    .app-container.show-left .sidebar-overlay,
-    .app-container.show-right .sidebar-overlay {
+    /* overlay 在 HTML 里是 app-container 的兄弟节点，所以这里用兄弟选择器 */
+    .app-container.show-left ~ .sidebar-overlay {
         display: block;
+    }
+
+    /* 适配手机浏览器底部安全区域：聊天输入区下边距抬高 */
+    .chat-input-area {
+        /* 基础 padding-bottom (Tailwind p-4 ≈ 16px) + 安全区 */
+        padding-bottom: calc(16px + constant(safe-area-inset-bottom));
+        padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+
+    /* 适配手机浏览器底部安全区域：左下角设置按钮抬高 */
+    .sidebar-footer {
+        /* 基础 padding-bottom (Tailwind p-3 ≈ 12px) + 安全区 */
+        padding-bottom: calc(12px + constant(safe-area-inset-bottom));
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
     }
 }
 
