@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OdysseiaUI</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        surface: {
+                            50: '#ffffff',
+                            100: '#f9fafb',
+                            200: '#f3f4f6',
+                            300: '#e5e7eb',
+                            800: '#27272a',
+                            900: '#18181b',
+                        },
+                        accent: '#27272a',
+                    },
+                    spacing: {
+                        '1': '4px',
+                        '2': '8px',
+                        '3': '12px',
+                        '4': '16px',
+                        '5': '20px',
+                        '6': '24px',
+                        '8': '32px',
+                        '10': '40px',
+                        '12': '48px',
+                    },
+                    borderRadius: {
+                        'sm': '2px',
+                        'md': '4px',
+                        'lg': '4px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Google Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Mobile Overlay -->
+<div id="mobile-overlay" class="sidebar-overlay" onclick="toggleSidebar('close-all')"></div>
+
+<div class="app-container" id="app-layout">
+
+    <!-- LEFT SIDEBAR: SESSIONS -->
+    <aside class="bg-surface-100 border-r border-surface-300 flex flex-col h-full min-h-0 overflow-hidden z-20 relative">
+        <!-- Header -->
+        <div class="h-14 flex items-center justify-between px-4 border-b border-surface-300">
+            <h2 class="font-semibold tracking-tight">Odysseia</h2>
+            <button onclick="createNewSession()" class="btn-icon" title="新建对话">
+                <span class="material-symbols-outlined text-[20px]">add_comment</span>
+            </button>
+        </div>
+
+        <!-- Search -->
+        <div class="p-3 border-b border-surface-200">
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-2 top-2 text-surface-800 text-[18px]">search</span>
+                <input type="text" id="session-search" placeholder="搜索对话..." class="w-full bg-white border border-surface-300 rounded-sm pl-8 pr-3 py-1.5 text-sm focus:border-surface-800 outline-none transition-colors" onkeyup="renderSessionList()">
+            </div>
+        </div>
+
+        <!-- Session List -->
+        <div id="session-list" class="flex-1 min-h-0 overflow-y-auto p-2 space-y-1">
+            <!-- Dynamic Content -->
+        </div>
+
+        <!-- Footer -->
+        <div class="p-3 border-t border-surface-300">
+            <button onclick="openSettings()" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-surface-800 hover:bg-surface-200 rounded-sm transition-colors">
+                <span class="material-symbols-outlined text-[18px]">settings</span>
+                <span>设置 & 插件</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- CENTER: CHAT AREA -->
+    <main class="bg-white flex flex-col h-full relative min-w-0 min-h-0 overflow-hidden z-10">
+
+        <!-- Header -->
+        <header class="h-14 border-b border-surface-300 flex items-center justify-between px-4 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+            <div class="flex items-center gap-2">
+                <button class="lg:hidden btn-icon" onclick="toggleSidebar('left')">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+
+                <!-- Channel/Model Selector -->
+                <div class="flex items-center gap-2">
+                    <select id="channel-select" onchange="loadModelsForChannel()" class="bg-transparent text-sm font-medium outline-none cursor-pointer hover:bg-surface-100 p-1 rounded">
+                        <option value="" disabled selected>选择渠道</option>
+                    </select>
+                    <span class="text-surface-300">/</span>
+                    <select id="model-select" class="bg-transparent text-sm outline-none cursor-pointer hover:bg-surface-100 p-1 rounded max-w-[150px] truncate">
+                        <option value="" disabled selected>选择模型</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1">
+                <button class="lg:hidden btn-icon" onclick="toggleSidebar('right')">
+                    <span class="material-symbols-outlined">article</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Chat History -->
+        <div id="chat-container" class="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 scroll-smooth">
+            <!-- Welcome / Empty State -->
+            <div id="empty-state" class="h-full flex flex-col items-center justify-center text-center opacity-50">
+                <span class="material-symbols-outlined text-6xl mb-4 text-surface-300">auto_awesome</span>
+                <h2 class="text-xl font-medium mb-2">开始新的对话</h2>
+                <p class="text-sm max-w-xs">选择模型，输入您的问题。Odysseia 准备就绪。</p>
+            </div>
+            <!-- Messages will be injected here -->
+            <div id="messages-list" class="space-y-6 max-w-3xl mx-auto pb-4"></div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 border-t border-surface-300 bg-white">
+            <div class="max-w-3xl mx-auto relative bg-surface-100 border border-surface-300 rounded-md focus-within:border-surface-800 focus-within:ring-1 focus-within:ring-surface-800 transition-all shadow-sm">
+
+                <!-- File Preview -->
+                <div id="file-preview-area" class="hidden px-3 pt-3 flex gap-2 flex-wrap"></div>
+
+                <textarea id="user-input" rows="1" class="w-full bg-transparent border-none outline-none p-3 text-sm resize-none max-h-48" placeholder="输入消息... (Shift + Enter 换行)" onkeydown="handleInputKey(event)"></textarea>
+
+                <div class="flex items-center justify-between px-2 pb-2">
+                    <div class="flex items-center gap-1">
+                        <button class="btn-icon relative overflow-hidden" title="上传文件">
+                            <span class="material-symbols-outlined text-[20px]">attach_file</span>
+                            <input type="file" id="file-upload" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleFileUpload(this)">
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="token-count" class="text-xs text-surface-800 hidden">0 tokens</span>
+                        <button id="send-btn" onclick="sendMessage()" class="w-8 h-8 flex items-center justify-center bg-surface-900 text-white rounded-sm hover:bg-surface-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">arrow_upward</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-2">
+                <p class="text-[10px] text-surface-800 opacity-40">AI 生成的内容可能不准确。</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR: LOGS -->
+    <aside class="bg-surface-50 border-l border-surface-300 flex flex-col h-full min-h-0 overflow-hidden z-20 absolute right-0 w-[300px] lg:static transform translate-x-full lg:translate-x-0 transition-transform duration-300" id="right-sidebar">
+        <div class="h-14 flex items-center justify-between px-4 border-b border-surface-300">
+            <h2 class="font-medium text-sm">请求日志</h2>
+            <div class="flex gap-1">
+                <button class="btn-icon text-[16px]" onclick="clearLogs()" title="清空日志">block</button>
+                <button class="lg:hidden btn-icon" onclick="toggleSidebar('right')">close</button>
+            </div>
+        </div>
+        <div class="p-2 border-b border-surface-300">
+            <input type="text" id="log-search" placeholder="筛选日志..." class="w-full bg-white border border-surface-300 rounded-sm px-2 py-1 text-xs focus:border-surface-800 outline-none" onkeyup="renderLogs()">
+        </div>
+        <div id="logs-list" class="flex-1 min-h-0 overflow-y-auto p-0">
+            <!-- Log Items -->
+        </div>
+    </aside>
+
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" class="modal-backdrop">
+    <div class="modal-content flex flex-col h-[80vh]">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-surface-300">
+            <h2 class="text-lg font-semibold">设置 & 配置</h2>
+            <button onclick="closeSettings()" class="btn-icon">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Settings Sidebar -->
+            <div class="w-48 bg-surface-50 border-r border-surface-300 p-2 space-y-1">
+                <button onclick="switchSettingsTab('channels')" class="settings-tab-btn w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-surface-200 active-tab" data-tab="channels">API 渠道</button>
+                <button onclick="switchSettingsTab('plugins')" class="settings-tab-btn w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-surface-200" data-tab="plugins">插件管理</button>
+                <button onclick="switchSettingsTab('about')" class="settings-tab-btn w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-surface-200" data-tab="about">关于</button>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="flex-1 p-6 overflow-y-auto bg-white">
+
+                <!-- TAB: CHANNELS -->
+                <div id="tab-channels" class="settings-panel block">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-base font-medium">API 渠道列表</h3>
+                        <button onclick="editChannel()" class="btn-primary text-xs px-3 py-1.5 rounded-sm">添加渠道</button>
+                    </div>
+
+                    <div id="channels-list" class="space-y-3">
+                        <!-- Channel Cards -->
+                    </div>
+
+                    <!-- Channel Editor Form (Hidden by default) -->
+                    <div id="channel-editor" class="hidden mt-6 border-t border-surface-300 pt-6">
+                        <h3 class="font-medium mb-4" id="editor-title">添加/编辑 渠道</h3>
+                        <div class="grid gap-4">
+                            <input type="hidden" id="edit-channel-id">
+                            <div>
+                                <label class="block text-xs font-medium mb-1">渠道名称</label>
+                                <input type="text" id="edit-channel-name" class="input-field" placeholder="例如: OpenAI Main">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Base URL</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="edit-channel-url" class="input-field flex-1" placeholder="https://api.openai.com" oninput="updateUrlPreview()">
+                                </div>
+                                <p class="text-[11px] text-surface-800 mt-1 opacity-60">示例请求: <span id="url-preview" class="font-mono">.../v1/chat/completions</span></p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">API Key</label>
+                                <input type="password" id="edit-channel-key" class="input-field" placeholder="sk-...">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">使用的插件 (协议格式)</label>
+                                <select id="edit-channel-plugin" class="input-field bg-white" onchange="updateUrlPreview()">
+                                    <!-- Populated via JS -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">可用模型 (逗号分隔)</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="edit-channel-models" class="input-field flex-1" placeholder="gpt-4o, gpt-3.5-turbo">
+                                    <button type="button" onclick="fetchModels()" class="btn-ghost border border-surface-300 text-xs">拉取列表</button>
+                                </div>
+                            </div>
+
+                            <!-- Advanced -->
+                            <div class="border border-surface-200 rounded p-3 bg-surface-50">
+                                <div class="flex justify-between items-center mb-2 cursor-pointer" onclick="document.getElementById('advanced-opts').classList.toggle('hidden')">
+                                    <span class="text-xs font-bold text-surface-800">高级请求自定义 (可选)</span>
+                                    <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                                </div>
+                                <div id="advanced-opts" class="hidden space-y-3">
+                                    <div>
+                                        <label class="block text-[10px] font-medium uppercase tracking-wider mb-1">Custom Headers (JSON)</label>
+                                        <textarea id="edit-channel-headers" class="input-field font-mono text-xs h-20" placeholder='{"X-Custom": "Value"}'></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-medium uppercase tracking-wider mb-1">Body Template (JSON)</label>
+                                        <textarea id="edit-channel-body" class="input-field font-mono text-xs h-24" placeholder='{"model": "{{model}}", "messages": {{messages}}, "stream": true}'></textarea>
+                                        <p class="text-[10px] text-surface-800 mt-1">可用变量: {{model}}, {{messages}}, {{prompt}}, {{fileData}}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-2 mt-2">
+                                <button onclick="document.getElementById('channel-editor').classList.add('hidden')" class="btn-ghost">取消</button>
+                                <button onclick="saveChannel()" class="btn-primary">保存渠道</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: PLUGINS -->
+                <div id="tab-plugins" class="settings-panel hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-base font-medium">插件系统</h3>
+                        <button onclick="createNewPlugin()" class="btn-ghost border border-surface-300 text-xs px-3 py-1.5 rounded-sm">新建插件</button>
+                    </div>
+                    <div id="plugins-list" class="grid gap-4 grid-cols-1 md:grid-cols-2">
+                        <!-- Plugins Grid -->
+                    </div>
+
+                    <!-- Plugin Editor -->
+                    <div id="plugin-editor" class="hidden fixed inset-0 bg-white z-50 flex flex-col">
+                        <div class="h-12 border-b border-surface-300 flex items-center justify-between px-4 bg-surface-50">
+                            <h3 class="font-mono text-sm font-bold">Plugin Editor</h3>
+                            <div class="flex gap-2">
+                                <button onclick="closePluginEditor()" class="btn-ghost text-xs">取消</button>
+                                <button onclick="savePlugin()" class="btn-primary text-xs">保存代码</button>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex flex-col p-4 gap-4 overflow-y-auto">
+                            <input type="hidden" id="edit-plugin-id">
+                            <div>
+                                <label class="text-xs font-bold">插件名称</label>
+                                <input type="text" id="edit-plugin-name" class="input-field mt-1">
+                            </div>
+                            <div class="flex-1 flex gap-4 min-h-[400px]">
+                                <div class="flex-1 flex flex-col">
+                                    <label class="text-xs font-bold mb-2 text-indigo-600">请求构建函数 (Request Builder)</label>
+                                    <p class="text-[10px] text-surface-800 mb-2 font-mono">function buildRequest(context) { ... return { url, headers, body } }</p>
+                                    <textarea id="edit-plugin-req" class="flex-1 w-full border border-surface-300 p-2 font-mono text-xs bg-surface-50 outline-none resize-none rounded-sm"></textarea>
+                                </div>
+                                <div class="flex-1 flex flex-col">
+                                    <label class="text-xs font-bold mb-2 text-emerald-600">响应解析函数 (Response Parser)</label>
+                                    <p class="text-[10px] text-surface-800 mb-2 font-mono">function parseResponse(chunk, context) { ... return textFragment }</p>
+                                    <textarea id="edit-plugin-res" class="flex-1 w-full border border-surface-300 p-2 font-mono text-xs bg-surface-50 outline-none resize-none rounded-sm"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: ABOUT -->
+                <div id="tab-about" class="settings-panel hidden">
+                    <h3 class="text-lg font-bold mb-2">OdysseiaUI</h3>
+                    <p class="text-sm text-surface-800 mb-4">Modular LLM Client. 100% Client-side.</p>
+                    <div class="p-4 bg-surface-100 rounded text-xs space-y-2 border border-surface-200">
+                        <p><strong>Storage:</strong> Conversations (messages, files, logs) are stored in your browser's IndexedDB; localStorage only keeps lightweight configuration.</p>
+                        <p><strong>Privacy:</strong> API keys are sent directly to the endpoint provided. No middle server.</p>
+                        <p><strong>Version:</strong> 1.0.0-alpha</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Details Modal -->
+<div id="log-modal" class="modal-backdrop">
+    <div class="modal-content p-6 max-w-2xl">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold">日志详情</h3>
+            <button onclick="document.getElementById('log-modal').classList.remove('active')" class="btn-icon">close</button>
+        </div>
+        <div class="space-y-4 font-mono text-xs">
+            <div>
+                <span class="text-xs font-bold bg-surface-200 px-1 rounded text-surface-800">Request URL</span>
+                <div id="log-detail-url" class="mt-1 break-all text-blue-600"></div>
+            </div>
+            <div>
+                <span class="text-xs font-bold bg-surface-200 px-1 rounded text-surface-800">Request Headers</span>
+                <pre id="log-detail-headers" class="mt-1 p-2 bg-surface-50 border border-surface-200 rounded overflow-x-auto"></pre>
+            </div>
+            <div>
+                <span class="text-xs font-bold bg-surface-200 px-1 rounded text-surface-800">Request Body</span>
+                <pre id="log-detail-body" class="mt-1 p-2 bg-surface-50 border border-surface-200 rounded overflow-x-auto max-h-40"></pre>
+            </div>
+            <div>
+                <span class="text-xs font-bold bg-surface-200 px-1 rounded text-surface-800">Raw Response</span>
+                <pre id="log-detail-response" class="mt-1 p-2 bg-surface-50 border border-surface-200 rounded overflow-x-auto max-h-60"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- App Script (bundled by Vite) -->
+<script type="module" src="/js/app.js"></script>
+
+</body>
+</html>
+
+

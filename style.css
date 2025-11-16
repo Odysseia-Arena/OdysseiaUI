@@ -1,0 +1,201 @@
+/* Global Reset & Base Styles */
+body {
+    background-color: #ffffff;
+    color: #18181b;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden; /* App-like feel */
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #d4d4d8;
+}
+
+/* Typography Hierarchy */
+h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.025em; color: #18181b; }
+h2 { font-size: 18px; font-weight: 500; color: #27272a; }
+.body-text { font-size: 14px; line-height: 24px; color: #3f3f46; }
+.caption { font-size: 12px; color: #71717a; }
+
+/* Layout Utilities */
+.app-container {
+    display: grid;
+    grid-template-columns: 260px 1fr 300px;
+    height: 100vh;
+    width: 100vw;
+    transition: all 0.3s ease;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 1024px) {
+    .app-container {
+        grid-template-columns: 0px 1fr 0px;
+    }
+    .app-container.show-left {
+        grid-template-columns: 260px 1fr 0px;
+    }
+    .app-container.show-right {
+        grid-template-columns: 0px 1fr 300px;
+    }
+    /* Overlay for mobile when sidebars are open */
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.2);
+        z-index: 40;
+        display: none;
+    }
+    .app-container.show-left .sidebar-overlay,
+    .app-container.show-right .sidebar-overlay {
+        display: block;
+    }
+}
+
+/* Components */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.btn-primary {
+    background-color: #18181b;
+    color: white;
+}
+.btn-primary:hover {
+    background-color: #3f3f46;
+}
+.btn-ghost {
+    background-color: transparent;
+    color: #52525b;
+}
+.btn-ghost:hover {
+    background-color: #f3f4f6;
+    color: #18181b;
+}
+.btn-icon {
+    padding: 8px;
+    border-radius: 4px;
+    color: #71717a;
+    cursor: pointer;
+}
+.btn-icon:hover {
+    background-color: #f3f4f6;
+    color: #18181b;
+}
+
+.input-field {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.input-field:focus {
+    border-color: #a1a1aa;
+}
+
+/* Markdown Styles Override */
+.prose {
+    max-width: none;
+    font-size: 15px;
+    line-height: 1.6;
+}
+.prose pre {
+    background-color: #f3f4f6;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    color: #18181b;
+}
+.prose code {
+    color: #ef4444;
+    font-weight: 500;
+    background-color: #f3f4f6;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+.prose pre code {
+    color: #18181b;
+    background-color: transparent;
+    padding: 0;
+}
+.prose p {
+    margin-bottom: 16px;
+}
+.prose h1, .prose h2, .prose h3 {
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: #18181b;
+}
+
+/* Modal */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(4px);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+.modal-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.modal-content {
+    background: white;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.95);
+    transition: transform 0.2s;
+}
+.modal-backdrop.active .modal-content {
+    transform: scale(1);
+}
+
+/* Loading Animation (Typing) */
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #71717a;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out both;
+    display: inline-block;
+    margin: 0 2px;
+}
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+
